@@ -1,4 +1,4 @@
-module github.com/hi-way/go-modbus
+module github.com/hi-enico/go-modbus
 
 go 1.19
 

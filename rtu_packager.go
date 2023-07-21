@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	rtuMinSize = 4
+	rtuMinSize = 5
 	rtuMaxSize = 256
 )
 
@@ -47,11 +47,20 @@ func (p *rtuPackager) Decode(results []byte) (adu ApplicationDataUnit, err error
 		return
 	}
 	if length < rtuMinSize {
-		err = fmt.Errorf("modbus: response data size '%v' less than maximum limit of '%v'", length, rtuMinSize)
+		err = fmt.Errorf("modbus: response data size '%v' less than minimum limit of '%v'", length, rtuMinSize)
 		return
 	}
 	slaveID := results[0]
 	functionCode := results[1]
+
+	//读取输入寄存器或保持寄存器响应报文最少应该有7个字节
+	if functionCode == FuncCodeReadInputRegisters || functionCode == FuncCodeReadHoldingRegisters {
+		if length < 7 {
+			err = fmt.Errorf("modbus: response data size '%v' less than minimum limit of '%v'", length, 7)
+			return
+		}
+	}
+
 	var pduLength int
 	var pdu protocolDataUnit
 	switch functionCode {
